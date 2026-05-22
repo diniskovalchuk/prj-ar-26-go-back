@@ -1,0 +1,141 @@
+package controllers
+
+import (
+	"errors"
+	"log"
+	"net/http"
+
+	"github.com/diniskovalchuk/prj2/internal/app"
+	"github.com/diniskovalchuk/prj2/internal/domain"
+	"github.com/diniskovalchuk/prj2/internal/infra/http/requests"
+	"github.com/diniskovalchuk/prj2/internal/infra/http/resources"
+)
+
+const RoomKey = "room"
+
+type RoomController struct {
+	roomService app.RoomService
+}
+
+func NewRoomController(rs app.RoomService) RoomController {
+	return RoomController{
+		roomService: rs,
+	}
+}
+
+func (c RoomController) Save() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		room, err := requests.Bind(r,
+			requests.RoomRequest{},
+			domain.Room{})
+		if err != nil {
+			log.Printf("RoomController.Save(requests.Bind): %s", err)
+			BadRequest(w, err)
+			return
+		}
+
+		user := r.Context().Value(UserKey).(domain.User)
+		room.OrganizationId = user.Id
+
+		room, err = c.roomService.Save(room)
+		if err != nil {
+			log.Printf("RoomController.Save(c.roomService.Save): %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		roomDto := resources.RoomDto{}
+		roomDto = roomDto.DomainToDto(room)
+		Success(w, roomDto)
+	}
+}
+
+func (c RoomController) FindList() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user := r.Context().Value(UserKey).(domain.User)
+
+		rooms, err := c.roomService.FindList(user.Id)
+		if err != nil {
+			log.Printf("RoomController.FindList(c.roomService.FindList): %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		roomList, ok := rooms.([]domain.Room)
+		if !ok {
+			log.Printf("RoomController.FindList: unexpected rooms type: %T", rooms)
+			InternalServerError(w, errors.New("invalid room data"))
+			return
+		}
+
+		Success(w, resources.RoomDto{}.DomainToDtoCollection(roomList))
+	}
+}
+
+func (c RoomController) Find() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user := r.Context().Value(UserKey).(domain.User)
+		room := r.Context().Value(RoomKey).(domain.Room)
+
+		if user.Id != room.OrganizationId {
+			Forbidden(w, errors.New("access denied"))
+			return
+		}
+
+		Success(w, resources.RoomDto{}.DomainToDto(room))
+	}
+}
+
+func (c RoomController) Update() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user := r.Context().Value(UserKey).(domain.User)
+		room := r.Context().Value(RoomKey).(domain.Room)
+
+		if user.Id != room.OrganizationId {
+			Forbidden(w, errors.New("access denied"))
+			return
+		}
+
+		newRoom, err := requests.Bind(r,
+			requests.RoomRequest{},
+			domain.Room{})
+		if err != nil {
+			log.Printf("RoomController.Update(requests.Bind): %s", err)
+			BadRequest(w, err)
+			return
+		}
+
+		room.Name = newRoom.Name
+		room.Description = newRoom.Description
+
+		room, err = c.roomService.Update(room)
+		if err != nil {
+			log.Printf("RoomController.Update(c.roomService.Update): %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		Success(w, resources.RoomDto{}.DomainToDto(room))
+	}
+}
+
+func (c RoomController) Delete() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user := r.Context().Value(UserKey).(domain.User)
+		room := r.Context().Value(RoomKey).(domain.Room)
+
+		if user.Id != room.OrganizationId {
+			Forbidden(w, errors.New("access denied"))
+			return
+		}
+
+		err := c.roomService.Delete(room.Id)
+		if err != nil {
+			log.Printf("RoomController.Delete(c.roomService.Delete): %s", err)
+			InternalServerError(w, err)
+			return
+		}
+
+		noContent(w)
+	}
+}
