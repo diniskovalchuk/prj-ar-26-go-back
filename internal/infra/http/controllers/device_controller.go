@@ -7,33 +7,35 @@ import (
 
 	"github.com/diniskovalchuk/prj2/internal/app"
 	"github.com/diniskovalchuk/prj2/internal/domain"
+	"github.com/diniskovalchuk/prj2/internal/infra/http/requests"
+	"github.com/diniskovalchuk/prj2/internal/infra/http/resources"
 )
 
 type DeviceController struct {
-	orgService app.OrganizationService
+	devService app.DeviceService
 }
 
-func NewDeviceController(os app.OrganizationService) DeviceController {
+func NewDeviceController(ds app.OrganizationService) DeviceController {
 	return DeviceController{
-		orgService: os,
+		devService: ds,
 	}
 }
 
 func (c DeviceController) Save() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		org, err := requests.Bind(r,
-			requests.OrganizationRequest{},
-			domain.Organization{})
+		dev, err := requests.Bind(r,
+			requests.DeviceRequest{},
+			domain.Device{})
 		if err != nil {
 			log.Printf("DeviceController.Save(requests.Bind): %s", err)
 			BadRequest(w, err)
 			return
 		}
 
-		user := r.Context().Value(UserKey).(domain.User)
-		org.UserId = user.Id
+		organization := r.Context().Value(OrgKey).(domain.Organization)
+		dev.OrganizationId = organizationId.Id
 
-		org, err = c.orgService.Save(org)
+		dev, err = c.devService.Save(dev)
 		if err != nil {
 			log.Printf("DeviceController.Save(c.orgService.Save): %s", err)
 			InternalServerError(w, err)
@@ -41,46 +43,46 @@ func (c DeviceController) Save() http.HandlerFunc {
 		}
 
 		devDto := resources.DeviceDto{}
-		devDto = devDto.DomainToDto(org)
+		devDto = devDto.DomainToDto(dev)
 		Success(w, devDto)
 	}
 }
 
 func (c DeviceController) FindList() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := r.Context().Value(UserKey).(domain.User)
+		organization := r.Context().Value(OrgKey).(domain.Organization)
 
-		orgs, err := c.orgService.FindList(user.Id)
+		dev, err := c.devService.FindList(organization.Id)
 		if err != nil {
 			log.Printf("DeviceController.FindList(c.orgService.FindList): %s", err)
 			InternalServerError(w, err)
 			return
 		}
 
-		Success(w, resources.DeviceDto{}.DomainToDtoCollection(orgs))
+		Success(w, resources.DeviceDto{}.DomainToDtoCollection(dev))
 	}
 }
 
 func (c DeviceController) Find() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := r.Context().Value(UserKey).(domain.User)
-		org := r.Context().Value(OrgKey).(domain.Organization)
+		organization := r.Context().Value(OrgKey).(domain.Organization)
+		dev := r.Context().Value(DevKey).(domain.Device)
 
-		if user.Id != org.UserId {
+		if organization.Id != dev.OrganizationId {
 			Forbidden(w, errors.New("access denied"))
 			return
 		}
 
-		Success(w, resources.DeviceDto{}.DomainToDto(org))
+		Success(w, resources.DeviceDto{}.DomainToDto(dev))
 	}
 }
 
 func (c DeviceController) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := r.Context().Value(UserKey).(domain.User)
-		org := r.Context().Value(OrgKey).(domain.Organization)
+		organization := r.Context().Value(UserKey).(domain.User)
+		dev := r.Context().Value(DevKey).(domain.Device)
 
-		if user.Id != org.UserId {
+		if organization.Id != dev.OrganizationId {
 			Forbidden(w, errors.New("access denied"))
 			return
 		}
@@ -94,37 +96,30 @@ func (c DeviceController) Update() http.HandlerFunc {
 			return
 		}
 
-		dev.Name = newDev.Name
-		dev.Description = newDev.Description
-		dev.City = newDev.City
-		dev.Address = newDev.Address
-		dev.Lat = newDev.Lat
-		dev.Lon = newDev.Lon
-
-		org, err = c.orgService.Update(org)
+		dev, err = c.devService.Update(dev)
 		if err != nil {
 			log.Printf("DeviceController.Update(c.orgService.Update): %s", err)
 			InternalServerError(w, err)
 			return
 		}
 
-		Success(w, resources.DeviceDto{}.DomainToDto(org))
+		Success(w, resources.DeviceDto{}.DomainToDto(dev))
 	}
 }
 
 func (c DeviceController) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := r.Context().Value(UserKey).(domain.User)
-		org := r.Context().Value(OrgKey).(domain.Organization)
+		organization := r.Context().Value(UserKey).(domain.User)
+		dev := r.Context().Value(DevKey).(domain.Device)
 
-		if user.Id != org.UserId {
+		if organization.Id != dev.OrganizationId {
 			Forbidden(w, errors.New("access denied"))
 			return
 		}
 
-		err := c.orgService.Delete(org.Id)
+		err := c.devService.Delete(dev.Id)
 		if err != nil {
-			log.Printf("OrganizationController.Delete(c.orgService.Delete): %s", err)
+			log.Printf("DeviceController.Delete(c.devService.Delete): %s", err)
 			InternalServerError(w, err)
 			return
 		}

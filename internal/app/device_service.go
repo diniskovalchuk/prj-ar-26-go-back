@@ -12,7 +12,7 @@ type deviceService struct {
 	roomRepo database.RoomRepository
 }
 
-type deviceService interface {
+type DeviceService interface {
 	Save(o domain.Device) (domain.Device, error)
 	FindList(uId uint64) ([]domain.Device, error)
 	Find(id uint64) (interface{}, error)
@@ -53,12 +53,6 @@ func (s deviceService) Find(id uint64) (interface{}, error) {
 	dev, err := s.devRepo.Find(id)
 	if err != nil {
 		log.Printf("deviceService.Find(s.devRepo.Find): %s", err)
-		return nil, err
-	}
-
-	dev.Rooms, err = s.roomRepo.FindByOrgId(dev.Id)
-	if err != nil {
-		log.Printf("deviceService.Find(s.roomRepo.FindByOrgId): %s", err)
 		return nil, err
 	}
 

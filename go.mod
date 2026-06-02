@@ -3,7 +3,6 @@ module github.com/diniskovalchuk/prj2
 go 1.25.0
 
 require (
-	github.com/diniskovalchuk/prj2 v0.0.0-20260521153101-2c22c7328f66
 	github.com/go-chi/chi/v5 v5.2.5
 	github.com/go-chi/cors v1.2.2
 	github.com/go-chi/jwtauth/v5 v5.4.0

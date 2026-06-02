@@ -52,21 +52,16 @@ func (c RoomController) Save() http.HandlerFunc {
 
 func (c RoomController) FindList() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := r.Context().Value(UserKey).(domain.User)
+		organization := r.Context().Value(UserKey).(domain.User)
 
-		rooms, err := c.roomService.FindList(user.Id)
+		rooms, err := c.roomService.FindList(organization.Id)
 		if err != nil {
 			log.Printf("RoomController.FindList(c.roomService.FindList): %s", err)
 			InternalServerError(w, err)
 			return
 		}
 
-		roomList, ok := rooms.([]domain.Room)
-		if !ok {
-			log.Printf("RoomController.FindList: unexpected rooms type: %T", rooms)
-			InternalServerError(w, errors.New("invalid room data"))
-			return
-		}
+		roomList := rooms
 
 		Success(w, resources.RoomDto{}.DomainToDtoCollection(roomList))
 	}

@@ -10,7 +10,7 @@ import (
 	"github.com/diniskovalchuk/prj2/internal/infra/http/controllers"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/google/uuid"
-	"github.com/lestrrat-go/jwx/v2/jwt"
+	"github.com/lestrrat-go/jwx/v3/jwt"
 	"github.com/upper/db/v4"
 )
 
@@ -30,9 +30,37 @@ func AuthMiddleware(ja *jwtauth.JWTAuth, as app.AuthService, us app.UserService)
 				return
 			}
 
-			claims := token.PrivateClaims()
-			uId := uint64(claims["user_id"].(float64))
-			uUuid, err := uuid.Parse(claims["uuid"].(string))
+			var userIDRaw interface{}
+
+			err = token.Get("user_id", &userIDRaw)
+			if err != nil {
+				controllers.Unauthorized(w, errors.New("missing user_id"))
+				return
+			}
+
+			var uuidRaw interface{}
+
+			err = token.Get("uuid", &uuidRaw)
+			if err != nil {
+				controllers.Unauthorized(w, errors.New("missing uuid"))
+				return
+			}
+
+			userIDFloat, ok := userIDRaw.(float64)
+			if !ok {
+				controllers.Unauthorized(w, errors.New("invalid user_id"))
+				return
+			}
+
+			uuidStr, ok := uuidRaw.(string)
+			if !ok {
+				controllers.Unauthorized(w, errors.New("invalid uuid"))
+				return
+			}
+
+			uId := uint64(userIDFloat)
+
+			uUuid, err := uuid.Parse(uuidStr)
 			if err != nil {
 				controllers.Unauthorized(w, err)
 				return
