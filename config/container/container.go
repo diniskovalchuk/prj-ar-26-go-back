@@ -62,11 +62,13 @@ func New(conf config.Configuration) Container {
 		Services: Services{
 			authService,
 			userService,
+
 			organizationService,
 		},
 		Controllers: Controllers{
 			authController,
 			userController,
+
 			organizationController,
 		},
 	}

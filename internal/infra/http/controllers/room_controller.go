@@ -11,8 +11,6 @@ import (
 	"github.com/diniskovalchuk/prj2/internal/infra/http/resources"
 )
 
-const RoomKey = "room"
-
 type RoomController struct {
 	roomService app.RoomService
 }

@@ -15,9 +15,9 @@ type DeviceController struct {
 	devService app.DeviceService
 }
 
-func NewDeviceController(ds app.OrganizationService) DeviceController {
+func NewDeviceController(os app.OrganizationService) DeviceController {
 	return DeviceController{
-		devService: ds,
+		devService: os,
 	}
 }
 
@@ -32,8 +32,8 @@ func (c DeviceController) Save() http.HandlerFunc {
 			return
 		}
 
-		organization := r.Context().Value(OrgKey).(domain.Organization)
-		dev.OrganizationId = organizationId.Id
+		user := r.Context().Value(OrgKey).(domain.Organization)
+		dev.OrganizationId = user.Id
 
 		dev, err = c.devService.Save(dev)
 		if err != nil {
@@ -65,10 +65,10 @@ func (c DeviceController) FindList() http.HandlerFunc {
 
 func (c DeviceController) Find() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		organization := r.Context().Value(OrgKey).(domain.Organization)
+		user := r.Context().Value(UserKey).(domain.User)
 		dev := r.Context().Value(DevKey).(domain.Device)
 
-		if organization.Id != dev.OrganizationId {
+		if user.Id != dev.OrganizationId {
 			Forbidden(w, errors.New("access denied"))
 			return
 		}
@@ -79,10 +79,10 @@ func (c DeviceController) Find() http.HandlerFunc {
 
 func (c DeviceController) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		organization := r.Context().Value(UserKey).(domain.User)
+		user := r.Context().Value(UserKey).(domain.User)
 		dev := r.Context().Value(DevKey).(domain.Device)
 
-		if organization.Id != dev.OrganizationId {
+		if user.Id != dev.OrganizationId {
 			Forbidden(w, errors.New("access denied"))
 			return
 		}
@@ -109,10 +109,10 @@ func (c DeviceController) Update() http.HandlerFunc {
 
 func (c DeviceController) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		organization := r.Context().Value(UserKey).(domain.User)
+		user := r.Context().Value(UserKey).(domain.User)
 		dev := r.Context().Value(DevKey).(domain.Device)
 
-		if organization.Id != dev.OrganizationId {
+		if user.Id != dev.OrganizationId {
 			Forbidden(w, errors.New("access denied"))
 			return
 		}
