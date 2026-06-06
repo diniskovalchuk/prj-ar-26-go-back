@@ -8,23 +8,20 @@ import (
 )
 
 type roomService struct {
-	orgRepo  database.OrganizationRepository
 	roomRepo database.RoomRepository
 }
 
 type RoomService interface {
 	Save(r domain.Room) (domain.Room, error)
 	FindList(uId uint64) ([]domain.Room, error)
-	Find(id uint64) (domain.Room, error)
+	Find(id uint64) (interface{}, error)
 	Update(r domain.Room) (domain.Room, error)
 	Delete(id uint64) error
 }
 
 func NewRoomService(
-	or database.OrganizationRepository,
 	rr database.RoomRepository) RoomService {
 	return roomService{
-		orgRepo:  or,
 		roomRepo: rr,
 	}
 }
@@ -49,7 +46,7 @@ func (s roomService) FindList(oId uint64) ([]domain.Room, error) {
 	return rooms, nil
 }
 
-func (s roomService) Find(id uint64) (domain.Room, error) {
+func (s roomService) Find(id uint64) (interface{}, error) {
 	room, err := s.roomRepo.Find(id)
 	if err != nil {
 		log.Printf("roomService.Find(s.roomRepo.Find): %s", err)

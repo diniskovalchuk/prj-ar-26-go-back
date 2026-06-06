@@ -10,13 +10,13 @@ import (
 const roomTableName = "rooms"
 
 type room struct {
-	Id          uint64     `db:"id,omitempty"`
-	OrganizationId uint64  `db:"organization_id"`
-	Name        string     `db:"name"`
-	Description *string    `db:"description"`
-	CreatedDate time.Time  `db:"created_date"`
-	UpdatedDate time.Time  `db:"updated_date"`
-	DeletedDate *time.Time `db:"deleted_date"`
+	Id             uint64     `db:"id,omitempty"`
+	OrganizationId uint64     `db:"organization_id"`
+	Name           string     `db:"name"`
+	Description    *string    `db:"description"`
+	CreatedDate    time.Time  `db:"created_date"`
+	UpdatedDate    time.Time  `db:"updated_date"`
+	DeletedDate    *time.Time `db:"deleted_date"`
 }
 
 type roomRepository struct {
@@ -60,7 +60,7 @@ func (r roomRepository) FindList(oId uint64) ([]domain.Room, error) {
 	err := r.coll.
 		Find(db.Cond{
 			"organization_id": oId,
-			"deleted_date": nil,
+			"deleted_date":    nil,
 		}).
 		All(&rooms)
 	if err != nil {
@@ -106,25 +106,25 @@ func (r roomRepository) Delete(id uint64) error {
 
 func (r roomRepository) mapDomainToModel(rm domain.Room) room {
 	return room{
-		Id:          rm.Id,
+		Id:             rm.Id,
 		OrganizationId: rm.OrganizationId,
-		Name:        rm.Name,
-		Description: rm.Description,
-		CreatedDate: rm.CreatedDate,
-		UpdatedDate: rm.UpdatedDate,
-		DeletedDate: rm.DeletedDate,
+		Name:           rm.Name,
+		Description:    rm.Description,
+		CreatedDate:    rm.CreatedDate,
+		UpdatedDate:    rm.UpdatedDate,
+		DeletedDate:    rm.DeletedDate,
 	}
 }
 
 func (r roomRepository) mapModelToDomain(rm room) domain.Room {
 	return domain.Room{
-		Id:          rm.Id,
+		Id:             rm.Id,
 		OrganizationId: rm.OrganizationId,
-		Name:        rm.Name,
-		Description: rm.Description,
-		CreatedDate: rm.CreatedDate,
-		UpdatedDate: rm.UpdatedDate,
-		DeletedDate: rm.DeletedDate,
+		Name:           rm.Name,
+		Description:    rm.Description,
+		CreatedDate:    rm.CreatedDate,
+		UpdatedDate:    rm.UpdatedDate,
+		DeletedDate:    rm.DeletedDate,
 	}
 }
 

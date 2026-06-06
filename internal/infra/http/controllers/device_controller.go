@@ -15,9 +15,9 @@ type DeviceController struct {
 	devService app.DeviceService
 }
 
-func NewDeviceController(os app.OrganizationService) DeviceController {
+func NewDeviceController(ds app.DeviceService) DeviceController {
 	return DeviceController{
-		devService: os,
+		devService: ds,
 	}
 }
 
@@ -95,10 +95,15 @@ func (c DeviceController) Update() http.HandlerFunc {
 			BadRequest(w, err)
 			return
 		}
+		dev.InventoryNumber = newDev.InventoryNumber
+		dev.SerialNumber = newDev.SerialNumber
+		dev.Characteristics = newDev.Characteristics
+		dev.Category = newDev.Category
+		dev.Units = newDev.Units
 
 		dev, err = c.devService.Update(dev)
 		if err != nil {
-			log.Printf("DeviceController.Update(c.orgService.Update): %s", err)
+			log.Printf("DeviceController.Update(c.devService.Update): %s", err)
 			InternalServerError(w, err)
 			return
 		}
