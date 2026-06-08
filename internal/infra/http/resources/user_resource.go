@@ -1,6 +1,6 @@
 package resources
 
-import "github.com/diniskovalchuk/prj2/internal/domain"
+import "prj-ar-26-go-back/internal/domain"
 
 type UserDto struct {
 	Id         uint64      `json:"id"`

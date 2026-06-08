@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/diniskovalchuk/prj2/internal/app"
-	"github.com/diniskovalchuk/prj2/internal/domain"
-	"github.com/diniskovalchuk/prj2/internal/infra/http/requests"
-	"github.com/diniskovalchuk/prj2/internal/infra/http/resources"
+	"prj-ar-26-go-back/internal/app"
+	"prj-ar-26-go-back/internal/domain"
+	"prj-ar-26-go-back/internal/infra/http/requests"
+	"prj-ar-26-go-back/internal/infra/http/resources"
 )
 
 type UserController struct {

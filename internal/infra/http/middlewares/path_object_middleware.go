@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/diniskovalchuk/prj2/internal/infra/http/controllers"
+	"prj-ar-26-go-back/internal/infra/http/controllers"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/upper/db/v4"
 )

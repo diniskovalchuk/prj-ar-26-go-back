@@ -1,16 +1,16 @@
 CREATE TABLE IF NOT EXISTS public.devices
 (
-    Id              serial PRIMARY KEY,
-    OrganizationId  integer NOT NULL REFERENCES public.organizations(id),
-    RoomId          varchar(250) NOT NULL,
-    GUID            uuid NOT NULL,
-    InventoryNumber varchar(250),
-    SerialNumber    varchar(250),
-    Characteristics text,
-    Category        varchar(250),
-    Units           varchar(250),
-    PowerConsumption numeric(10, 2),
-    CreatedDate     timestamptz NOT NULL,
-    UpdatedDate     timestamptz NOT NULL,
-    DeletedDate     timestamptz
+    id              serial PRIMARY KEY,
+    organization_id  integer NOT NULL REFERENCES public.organizations(id),
+    room_id          integer NOT NULL REFERENCES public.rooms(id),
+    guid            uuid NOT NULL DEFAULT gen_random_uuid(),
+    inventory_number varchar(250),
+    serial_number    varchar(250),
+    characteristics text,
+    category        varchar(250),
+    units           varchar(250),
+    power_consumption numeric(10, 2),
+    created_date    timestamptz NOT NULL,
+    updated_date    timestamptz NOT NULL,
+    deleted_date    timestamptz
 );

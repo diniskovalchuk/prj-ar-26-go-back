@@ -3,8 +3,8 @@ package app
 import (
 	"log"
 
-	"github.com/diniskovalchuk/prj2/internal/domain"
-	"github.com/diniskovalchuk/prj2/internal/infra/database"
+	"prj-ar-26-go-back/internal/domain"
+	"prj-ar-26-go-back/internal/infra/database"
 )
 
 type roomService struct {

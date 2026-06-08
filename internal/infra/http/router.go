@@ -8,11 +8,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/diniskovalchuk/prj2/config"
-	"github.com/diniskovalchuk/prj2/config/container"
-	"github.com/diniskovalchuk/prj2/internal/app"
-	"github.com/diniskovalchuk/prj2/internal/infra/http/controllers"
-	"github.com/diniskovalchuk/prj2/internal/infra/http/middlewares"
+	"prj-ar-26-go-back/config"
+	"prj-ar-26-go-back/config/container"
+	"prj-ar-26-go-back/internal/app"
+	"prj-ar-26-go-back/internal/infra/http/controllers"
+	"prj-ar-26-go-back/internal/infra/http/middlewares"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 
@@ -60,7 +61,12 @@ func Router(cont container.Container) http.Handler {
 					apiRouter,
 					cont.RoomController,
 					cont.RoomService,
-					cont.OrganizationService)
+				)
+				DeviceRouter(
+					apiRouter,
+					cont.DeviceController,
+					cont.DeviceService,
+				)
 				apiRouter.Handle("/*", NotFoundJSON())
 			})
 		})
@@ -120,28 +126,30 @@ func OrganizationRouter(r chi.Router, oc controllers.OrganizationController, os 
 	})
 }
 
-func RoomRouter(
-	r chi.Router,
-	rc controllers.RoomController,
-	rs app.RoomService,
-	os app.OrganizationService,
-) {
-	opom := middlewares.PathObject("orgId", controllers.OrgKey, os)
+func RoomRouter(r chi.Router, rc controllers.RoomController, rs app.RoomService) {
+
 	rpom := middlewares.PathObject("roomId", controllers.RoomKey, rs)
 
-	r.Route("/organizations/{orgId}/rooms", func(roomRouter chi.Router) {
-		roomRouter.Use(opom)
+	r.Route("/rooms", func(apiRouter chi.Router) {
 
-		roomRouter.Post("/", rc.Save())
-		roomRouter.Get("/", rc.FindList())
+		apiRouter.Post("/", rc.Save())
+		apiRouter.Get("/", rc.FindList())
+		apiRouter.With(rpom).Get("/{roomId}", rc.Find())
+		apiRouter.With(rpom).Put("/{roomId}", rc.Update())
+		apiRouter.With(rpom).Delete("/{roomId}", rc.Delete())
+	})
+}
+func DeviceRouter(r chi.Router, dc controllers.DeviceController, ds app.DeviceService) {
 
-		roomRouter.Route("/{roomId}", func(roomRouter chi.Router) {
-			roomRouter.Use(rpom)
+	dpom := middlewares.PathObject("deviceId", controllers.DevKey, ds)
 
-			roomRouter.Get("/", rc.Find())
-			roomRouter.Put("/", rc.Update())
-			roomRouter.Delete("/", rc.Delete())
-		})
+	r.Route("/devices", func(apiRouter chi.Router) {
+
+		apiRouter.Post("/", dc.Save())
+		apiRouter.Get("/", dc.FindList())
+		apiRouter.With(dpom).Get("/{deviceId}", dc.Find())
+		apiRouter.With(dpom).Put("/{deviceId}", dc.Update())
+		apiRouter.With(dpom).Delete("/{deviceId}", dc.Delete())
 	})
 }
 

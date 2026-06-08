@@ -1,6 +1,6 @@
 package requests
 
-import "github.com/diniskovalchuk/prj2/internal/domain"
+import "prj-ar-26-go-back/internal/domain"
 
 type OrganizationRequest struct {
 	Name        string  `json:"name" validate:"required"`

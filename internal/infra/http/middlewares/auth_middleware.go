@@ -5,9 +5,10 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/diniskovalchuk/prj2/internal/app"
-	"github.com/diniskovalchuk/prj2/internal/domain"
-	"github.com/diniskovalchuk/prj2/internal/infra/http/controllers"
+	"prj-ar-26-go-back/internal/app"
+	"prj-ar-26-go-back/internal/domain"
+	"prj-ar-26-go-back/internal/infra/http/controllers"
+
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/google/uuid"
 	"github.com/lestrrat-go/jwx/v3/jwt"

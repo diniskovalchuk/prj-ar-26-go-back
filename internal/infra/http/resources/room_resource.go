@@ -1,22 +1,20 @@
 package resources
 
-import "github.com/diniskovalchuk/prj2/internal/domain"
+import "prj-ar-26-go-back/internal/domain"
 
 type RoomDto struct {
-	Id          uint64  `json:"id"`
+	Id             uint64  `json:"id"`
 	OrganizationId uint64  `json:"organizationId"`
-	Name        string  `json:"name"`
-	Description *string `json:"description,omitempty"`
-	
+	Name           string  `json:"name"`
+	Description    *string `json:"description,omitempty"`
 }
 
 func (d RoomDto) DomainToDto(r domain.Room) RoomDto {
 	return RoomDto{
-		Id:          r.Id,
+		Id:             r.Id,
 		OrganizationId: r.OrganizationId,
-		Name:        r.Name,
-		Description: r.Description,
-		
+		Name:           r.Name,
+		Description:    r.Description,
 	}
 }
 

@@ -5,10 +5,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/diniskovalchuk/prj2/internal/app"
-	"github.com/diniskovalchuk/prj2/internal/domain"
-	"github.com/diniskovalchuk/prj2/internal/infra/http/requests"
-	"github.com/diniskovalchuk/prj2/internal/infra/http/resources"
+	"prj-ar-26-go-back/internal/app"
+	"prj-ar-26-go-back/internal/domain"
+	"prj-ar-26-go-back/internal/infra/http/requests"
+	"prj-ar-26-go-back/internal/infra/http/resources"
 )
 
 type DeviceController struct {
@@ -32,12 +32,12 @@ func (c DeviceController) Save() http.HandlerFunc {
 			return
 		}
 
-		user := r.Context().Value(OrgKey).(domain.Organization)
+		user := r.Context().Value(UserKey).(domain.User)
 		dev.OrganizationId = user.Id
 
 		dev, err = c.devService.Save(dev)
 		if err != nil {
-			log.Printf("DeviceController.Save(c.orgService.Save): %s", err)
+			log.Printf("DeviceController.Save(c.devService.Save): %s", err)
 			InternalServerError(w, err)
 			return
 		}
@@ -50,11 +50,11 @@ func (c DeviceController) Save() http.HandlerFunc {
 
 func (c DeviceController) FindList() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		organization := r.Context().Value(OrgKey).(domain.Organization)
+		organization := r.Context().Value(UserKey).(domain.User)
 
 		dev, err := c.devService.FindList(organization.Id)
 		if err != nil {
-			log.Printf("DeviceController.FindList(c.orgService.FindList): %s", err)
+			log.Printf("DeviceController.FindList(c.devService.FindList): %s", err)
 			InternalServerError(w, err)
 			return
 		}

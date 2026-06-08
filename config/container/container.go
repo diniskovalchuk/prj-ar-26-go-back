@@ -4,11 +4,12 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/diniskovalchuk/prj2/config"
-	"github.com/diniskovalchuk/prj2/internal/app"
-	"github.com/diniskovalchuk/prj2/internal/infra/database"
-	"github.com/diniskovalchuk/prj2/internal/infra/http/controllers"
-	"github.com/diniskovalchuk/prj2/internal/infra/http/middlewares"
+	"prj-ar-26-go-back/config"
+	"prj-ar-26-go-back/internal/app"
+	"prj-ar-26-go-back/internal/infra/database"
+	"prj-ar-26-go-back/internal/infra/http/controllers"
+	"prj-ar-26-go-back/internal/infra/http/middlewares"
+
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/upper/db/v4"
 	"github.com/upper/db/v4/adapter/postgresql"
@@ -29,6 +30,7 @@ type Services struct {
 	app.UserService
 	app.OrganizationService
 	app.RoomService
+	app.DeviceService
 }
 
 type Controllers struct {
@@ -36,6 +38,7 @@ type Controllers struct {
 	UserController         controllers.UserController
 	OrganizationController controllers.OrganizationController
 	RoomController         controllers.RoomController
+	DeviceController       controllers.DeviceController
 }
 
 func New(conf config.Configuration) Container {
@@ -46,17 +49,19 @@ func New(conf config.Configuration) Container {
 	userRepository := database.NewUserRepository(sess)
 	organizationRepository := database.NewOrganizationRepository(sess)
 	roomRepository := database.NewRoomRepository(sess)
+	deviceRepository := database.NewDeviceRepository(sess)
 
 	userService := app.NewUserService(userRepository)
 	authService := app.NewAuthService(sessionRepository, userRepository, tknAuth, conf.JwtTTL)
 	organizationService := app.NewOrganizationService(organizationRepository)
 	roomService := app.NewRoomService(roomRepository)
+	deviceService := app.NewDeviceService(deviceRepository)
 
 	authController := controllers.NewAuthController(authService, userService)
 	userController := controllers.NewUserController(userService, authService)
 	organizationController := controllers.NewOrganizationController(organizationService)
 	roomController := controllers.NewRoomController(roomService)
-
+	deviceController := controllers.NewDeviceController(deviceService)
 	authMiddleware := middlewares.AuthMiddleware(tknAuth, authService, userService)
 
 	return Container{
@@ -68,6 +73,7 @@ func New(conf config.Configuration) Container {
 			userService,
 			organizationService,
 			roomService,
+			deviceService,
 		},
 		Controllers: Controllers{
 			authController,
@@ -75,6 +81,7 @@ func New(conf config.Configuration) Container {
 
 			organizationController,
 			roomController,
+			deviceController,
 		},
 	}
 }

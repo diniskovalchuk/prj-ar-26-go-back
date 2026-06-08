@@ -3,13 +3,12 @@ package app
 import (
 	"log"
 
-	"github.com/diniskovalchuk/prj2/internal/domain"
-	"github.com/diniskovalchuk/prj2/internal/infra/database"
+	"prj-ar-26-go-back/internal/domain"
+	"prj-ar-26-go-back/internal/infra/database"
 )
 
 type deviceService struct {
-	devRepo  database.DeviceRepository
-	roomRepo database.RoomRepository
+	devRepo database.DeviceRepository
 }
 
 type DeviceService interface {
@@ -22,10 +21,9 @@ type DeviceService interface {
 
 func NewDeviceService(
 	devRepo database.DeviceRepository,
-	roomRepo database.RoomRepository) deviceService {
+) deviceService {
 	return deviceService{
-		devRepo:  devRepo,
-		roomRepo: roomRepo,
+		devRepo: devRepo,
 	}
 }
 

@@ -9,10 +9,10 @@ import (
 	"runtime/debug"
 	"syscall"
 
-	"github.com/diniskovalchuk/prj2/config"
-	"github.com/diniskovalchuk/prj2/config/container"
-	"github.com/diniskovalchuk/prj2/internal/infra/database"
-	"github.com/diniskovalchuk/prj2/internal/infra/http"
+	"prj-ar-26-go-back/config"
+	"prj-ar-26-go-back/config/container"
+	"prj-ar-26-go-back/internal/infra/database"
+	"prj-ar-26-go-back/internal/infra/http"
 )
 
 func main() {

@@ -5,8 +5,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/diniskovalchuk/prj2/internal/domain"
-	"github.com/diniskovalchuk/prj2/internal/infra/database"
+	"prj-ar-26-go-back/internal/domain"
+	"prj-ar-26-go-back/internal/infra/database"
+
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/google/uuid"
 	"github.com/upper/db/v4"

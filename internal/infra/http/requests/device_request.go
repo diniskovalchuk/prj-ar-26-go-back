@@ -1,27 +1,32 @@
 package requests
 
 import (
-	"github.com/diniskovalchuk/prj2/internal/domain"
+	"prj-ar-26-go-back/internal/domain"
+
+	"github.com/google/uuid"
 )
 
 type DeviceRequest struct {
-	RoomId           *uint64               `db:"room_id,omitempty"`
-	InventoryNumber  string                `db:"inventory_number,omitempty"`
-	SerialNumber     string                `db:"serial_number,omitempty"`
-	Characteristics  string                `db:"characteristics,omitempty"`
-	Category         domain.DeviceCategory `db:"category,omitempty"`
-	Units            string                `db:"units,omitempty"`
-	PowerConsumption float64               `db:"power_consumption,omitempty"`
+	OrganizationId   uint64                `json:"organization_id,omitempty"`
+	RoomId           *uint64               `json:"room_id,omitempty"`
+	InventoryNumber  string                `json:"inventory_number,omitempty"`
+	SerialNumber     string                `json:"serial_number,omitempty"`
+	Characteristics  string                `json:"characteristics,omitempty"`
+	Category         domain.DeviceCategory `json:"category,omitempty"`
+	Units            string                `json:"units,omitempty"`
+	PowerConsumption float64               `json:"power_consumption,omitempty"`
 }
 
 func (r DeviceRequest) ToDomainModel() (interface{}, error) {
 	return domain.Device{
-		RoomId:           r.RoomId,
+		OrganizationId:   r.OrganizationId,
 		InventoryNumber:  r.InventoryNumber,
 		SerialNumber:     r.SerialNumber,
 		Characteristics:  r.Characteristics,
 		Category:         r.Category,
 		Units:            r.Units,
 		PowerConsumption: r.PowerConsumption,
+		RoomId:           r.RoomId,
+		GUID:             uuid.New().String(),
 	}, nil
 }

@@ -3,7 +3,8 @@ package database
 import (
 	"fmt"
 
-	"github.com/diniskovalchuk/prj2/internal/domain"
+	"prj-ar-26-go-back/internal/domain"
+
 	"github.com/google/uuid"
 	"github.com/upper/db/v4"
 )

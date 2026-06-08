@@ -1,7 +1,7 @@
 package requests
 
 import (
-	"github.com/diniskovalchuk/prj2/internal/domain"
+	"prj-ar-26-go-back/internal/domain"
 )
 
 type RegisterRequest struct {
