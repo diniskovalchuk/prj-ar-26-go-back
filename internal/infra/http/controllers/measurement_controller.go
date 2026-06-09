@@ -29,7 +29,7 @@ func (c MeasurementController) Save() http.HandlerFunc {
 		var domainModel domain.Measurement
 
 		// Bind зчитує DeviceId, RoomId та Value з JSON-тіла запиту від пристрою
-		req, err := requests.Bind[requests.MeasurementRequest, domain.Measurement](r, reqType, domainModel)
+		req, err := requests.Bind(r, reqType, domainModel)
 		if err != nil {
 			log.Printf("MeasurementController.Save(requests.Bind): %s", err)
 			BadRequest(w, err)
@@ -120,7 +120,7 @@ func (c MeasurementController) Update() http.HandlerFunc {
 
 		var reqType requests.MeasurementRequest
 		var domainModel domain.Measurement
-		req, err := requests.Bind[requests.MeasurementRequest, domain.Measurement](r, reqType, domainModel)
+		req, err := requests.Bind(r, reqType, domainModel)
 		if err != nil {
 			log.Printf("MeasurementController.Update(requests.Bind): %s", err)
 			BadRequest(w, err)
