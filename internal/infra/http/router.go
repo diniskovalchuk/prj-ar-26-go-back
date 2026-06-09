@@ -72,6 +72,11 @@ func Router(cont container.Container) http.Handler {
 					cont.MeasurementController,
 					cont.MeasurementService,
 				)
+				EventRouter(
+					apiRouter,
+					cont.EventController,
+					cont.EventService,
+				)
 				apiRouter.Handle("/*", NotFoundJSON())
 			})
 		})
@@ -173,6 +178,12 @@ func MeasurementRouter(r chi.Router, mc controllers.MeasurementController, ms ap
 		apiRouter.With(mpom).Get("/{measId}", mc.Find())
 		apiRouter.With(mpom).Put("/{measId}", mc.Update())
 		apiRouter.With(mpom).Delete("/{measId}", mc.Delete())
+	})
+}
+func EventRouter(r chi.Router, ec controllers.EventController, es app.EventService) {
+	r.Route("/events", func(apiRouter chi.Router) {
+		apiRouter.Post("/", ec.Save())                        // Прийом подій від пристроїв
+		apiRouter.Get("/energy-report", ec.GetEnergyReport()) // Звіт для адміна
 	})
 }
 

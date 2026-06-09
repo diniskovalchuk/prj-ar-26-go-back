@@ -3,7 +3,6 @@ package container
 import (
 	"log"
 	"net/http"
-
 	"prj-ar-26-go-back/config"
 	"prj-ar-26-go-back/internal/app"
 	"prj-ar-26-go-back/internal/infra/database"
@@ -32,6 +31,7 @@ type Services struct {
 	app.RoomService
 	app.DeviceService
 	app.MeasurementService
+	app.EventService // Додано сервіс для подій
 }
 
 type Controllers struct {
@@ -41,32 +41,40 @@ type Controllers struct {
 	RoomController         controllers.RoomController
 	DeviceController       controllers.DeviceController
 	MeasurementController  controllers.MeasurementController
+	EventController        controllers.EventController // Додано контролер для подій
 }
 
 func New(conf config.Configuration) Container {
 	tknAuth := jwtauth.New("HS256", []byte(conf.JwtSecret), nil)
 	sess := getDbSess(conf)
 
+	// Ініціалізація репозиторіїв
 	sessionRepository := database.NewSessRepository(sess)
 	userRepository := database.NewUserRepository(sess)
 	organizationRepository := database.NewOrganizationRepository(sess)
 	roomRepository := database.NewRoomRepository(sess)
 	deviceRepository := database.NewDeviceRepository(sess)
 	measurementRepository := database.NewMeasurementRepository(sess)
+	eventRepository := database.NewEventRepository(sess) // Додано репозиторій подій
 
+	// Ініціалізація бізнес-сервісів
 	userService := app.NewUserService(userRepository)
 	authService := app.NewAuthService(sessionRepository, userRepository, tknAuth, conf.JwtTTL)
 	organizationService := app.NewOrganizationService(organizationRepository)
 	roomService := app.NewRoomService(roomRepository)
 	deviceService := app.NewDeviceService(deviceRepository)
 	measurementService := app.NewMeasurementService(measurementRepository)
+	eventService := app.NewEventService(eventRepository) // Додано сервіс подій
 
+	// Ініціалізація HTTP-контролерів
 	authController := controllers.NewAuthController(authService, userService)
 	userController := controllers.NewUserController(userService, authService)
 	organizationController := controllers.NewOrganizationController(organizationService)
 	roomController := controllers.NewRoomController(roomService)
 	deviceController := controllers.NewDeviceController(deviceService)
 	measurementController := controllers.NewMeasurementController(measurementService)
+	eventController := controllers.NewEventController(eventService) // Додано контролер подій
+
 	authMiddleware := middlewares.AuthMiddleware(tknAuth, authService, userService)
 
 	return Container{
@@ -74,21 +82,22 @@ func New(conf config.Configuration) Container {
 			AuthMw: authMiddleware,
 		},
 		Services: Services{
-			authService,
-			userService,
-			organizationService,
-			roomService,
-			deviceService,
-			measurementService,
+			AuthService:         authService,
+			UserService:         userService,
+			OrganizationService: organizationService,
+			RoomService:         roomService,
+			DeviceService:       deviceService,
+			MeasurementService:  measurementService,
+			EventService:        eventService, // Передаємо у сервіси
 		},
 		Controllers: Controllers{
-			authController,
-			userController,
-
-			organizationController,
-			roomController,
-			deviceController,
-			measurementController,
+			AuthController:         authController,
+			UserController:         userController,
+			OrganizationController: organizationController,
+			RoomController:         roomController,
+			DeviceController:       deviceController,
+			MeasurementController:  measurementController,
+			EventController:        eventController, // Передаємо у контролери
 		},
 	}
 }
@@ -97,7 +106,7 @@ func getDbSess(conf config.Configuration) db.Session {
 	sess, err := postgresql.Open(
 		postgresql.ConnectionURL{
 			User:     conf.DatabaseUser,
-			Host:     conf.DatabaseHost, // Порт має бути записаний прямо тут, наприклад "localhost:5432"
+			Host:     conf.DatabaseHost,
 			Password: conf.DatabasePassword,
 			Database: conf.DatabaseName,
 		})
