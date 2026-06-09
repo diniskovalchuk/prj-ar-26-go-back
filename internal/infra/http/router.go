@@ -67,6 +67,11 @@ func Router(cont container.Container) http.Handler {
 					cont.DeviceController,
 					cont.DeviceService,
 				)
+				MeasurementRouter(
+					apiRouter,
+					cont.MeasurementController,
+					cont.MeasurementService,
+				)
 				apiRouter.Handle("/*", NotFoundJSON())
 			})
 		})
@@ -150,6 +155,24 @@ func DeviceRouter(r chi.Router, dc controllers.DeviceController, ds app.DeviceSe
 		apiRouter.With(dpom).Get("/{deviceId}", dc.Find())
 		apiRouter.With(dpom).Put("/{deviceId}", dc.Update())
 		apiRouter.With(dpom).Delete("/{deviceId}", dc.Delete())
+	})
+}
+func MeasurementRouter(r chi.Router, mc controllers.MeasurementController, ms app.MeasurementService) {
+	mpom := middlewares.PathObject("measId", controllers.MesKey, ms)
+
+	r.Route("/measurements", func(apiRouter chi.Router) {
+		// 1. Ендпоінт для пристроїв (запис вимірювань сенсорів у БД)
+		apiRouter.Post("/", mc.Save())
+
+		// 2. Ендпоінт для адміністратора (перегляд за пристроєм за день/тиждень/місяць)
+		// Доступний за URL: GET /api/v1/measurements/report?device_id=X&period=week
+		apiRouter.Get("/report", mc.GetAdminReport())
+
+		// Standard CRUD
+		apiRouter.Get("/", mc.FindList())
+		apiRouter.With(mpom).Get("/{measId}", mc.Find())
+		apiRouter.With(mpom).Put("/{measId}", mc.Update())
+		apiRouter.With(mpom).Delete("/{measId}", mc.Delete())
 	})
 }
 

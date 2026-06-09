@@ -31,6 +31,7 @@ type Services struct {
 	app.OrganizationService
 	app.RoomService
 	app.DeviceService
+	app.MeasurementService
 }
 
 type Controllers struct {
@@ -39,6 +40,7 @@ type Controllers struct {
 	OrganizationController controllers.OrganizationController
 	RoomController         controllers.RoomController
 	DeviceController       controllers.DeviceController
+	MeasurementController  controllers.MeasurementController
 }
 
 func New(conf config.Configuration) Container {
@@ -50,18 +52,21 @@ func New(conf config.Configuration) Container {
 	organizationRepository := database.NewOrganizationRepository(sess)
 	roomRepository := database.NewRoomRepository(sess)
 	deviceRepository := database.NewDeviceRepository(sess)
+	measurementRepository := database.NewMeasurementRepository(sess)
 
 	userService := app.NewUserService(userRepository)
 	authService := app.NewAuthService(sessionRepository, userRepository, tknAuth, conf.JwtTTL)
 	organizationService := app.NewOrganizationService(organizationRepository)
 	roomService := app.NewRoomService(roomRepository)
 	deviceService := app.NewDeviceService(deviceRepository)
+	measurementService := app.NewMeasurementService(measurementRepository)
 
 	authController := controllers.NewAuthController(authService, userService)
 	userController := controllers.NewUserController(userService, authService)
 	organizationController := controllers.NewOrganizationController(organizationService)
 	roomController := controllers.NewRoomController(roomService)
 	deviceController := controllers.NewDeviceController(deviceService)
+	measurementController := controllers.NewMeasurementController(measurementService)
 	authMiddleware := middlewares.AuthMiddleware(tknAuth, authService, userService)
 
 	return Container{
@@ -74,6 +79,7 @@ func New(conf config.Configuration) Container {
 			organizationService,
 			roomService,
 			deviceService,
+			measurementService,
 		},
 		Controllers: Controllers{
 			authController,
@@ -82,6 +88,7 @@ func New(conf config.Configuration) Container {
 			organizationController,
 			roomController,
 			deviceController,
+			measurementController,
 		},
 	}
 }
@@ -90,7 +97,7 @@ func getDbSess(conf config.Configuration) db.Session {
 	sess, err := postgresql.Open(
 		postgresql.ConnectionURL{
 			User:     conf.DatabaseUser,
-			Host:     conf.DatabaseHost,
+			Host:     conf.DatabaseHost, // Порт має бути записаний прямо тут, наприклад "localhost:5432"
 			Password: conf.DatabasePassword,
 			Database: conf.DatabaseName,
 		})
